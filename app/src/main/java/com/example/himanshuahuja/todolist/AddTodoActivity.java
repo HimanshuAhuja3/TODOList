@@ -28,6 +28,8 @@ public class AddTodoActivity extends AppCompatActivity {
 
         EditText titleEditText =findViewById(R.id.titletext);
         EditText dayEditText=findViewById(R.id.daytext);
+        //  EditText dateEditText = findViewById(R.id.addExpense_DateEditText);
+     //   EditText TimeEditText = findViewById(R.id.addExpense_TimeEditText);
 
         String title = titleEditText.getText().toString();
         String day = dayEditText.getText().toString();

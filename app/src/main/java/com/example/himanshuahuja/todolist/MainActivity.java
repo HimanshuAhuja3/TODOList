@@ -1,6 +1,7 @@
 package com.example.himanshuahuja.todolist;
 
 import android.app.Dialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -19,10 +20,15 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+
+
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity  {
+
+public class MainActivity extends AppCompatActivity {
     ArrayList<todo> todos = new ArrayList<>();
     // adapter;
     todoAdapter adapter;
@@ -35,6 +41,22 @@ public class MainActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ListView listView = findViewById(R.id.listview);
+        todoOpenHepler openHelper = todoOpenHepler.getInstance(getApplicationContext());
+        SQLiteDatabase database = openHelper.getReadableDatabase();
+       // int amountGreaterThan = 0;
+       // String[] selectionArgument = {amountGreaterThan + "",};
+        String[] columns = {Contract.Todo.COLUMN_NAME,Contract.Todo.COLUMN_DAY,Contract.Todo.COLUMN_ID};
+        Cursor cursor = database.query(Contract.Todo.TABLE_NAME,columns,  null,null,null,null,null);
+        while(cursor.moveToNext()){
+            String name = cursor.getString(cursor.getColumnIndex(Contract.Todo.COLUMN_NAME));
+            String day = cursor.getString(cursor.getColumnIndex(Contract.Todo.COLUMN_DAY));
+            long id = cursor.getLong(cursor.getColumnIndex(Contract.Todo.COLUMN_ID));
+            todo todo = new todo(name,day);
+            todo.setId(id);
+            todos.add(todo);
+        }
+        cursor.close();
+
         adapter = new todoAdapter(this, todos);
 
         listView.setAdapter(adapter);
@@ -43,13 +65,17 @@ public class MainActivity extends AppCompatActivity  {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 todo todo = todos.get(i);
-                showInputBox(todo.getName(),todo.getDay(),i);
+                String n=todo.getName();
+                String d=todo.getDay();
+                showInputBox(n,d,i);
+
+
             }
         });
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                todo todo = todos.get(i);
+                final todo todo = todos.get(i);
 
 
                 final int position = i;
@@ -63,6 +89,13 @@ public class MainActivity extends AppCompatActivity  {
                     public void onClick(DialogInterface dialogInterface, int i) {
 
                         //Toast.makeText(MainActivity.this,"Ok Presses",Toast.LENGTH_LONG).show();
+                        todoOpenHepler openHelper= todoOpenHepler.getInstance(getApplicationContext());
+                        SQLiteDatabase database = openHelper.getWritableDatabase();
+
+                        long id = todo.getId();
+                        String[] selectionArgs = {id + ""};
+
+                        database.delete(Contract.Todo.TABLE_NAME,Contract.Todo.COLUMN_ID + " = ?",selectionArgs);
                         todos.remove(position);
                         adapter.notifyDataSetChanged();
                     }
@@ -105,7 +138,16 @@ public class MainActivity extends AppCompatActivity  {
             public void onClick(View view) {
                 todo todo = todos.get(index);
                 todo.setName(editText.getText().toString());
-                todo.setDay(position,editText1.getText().toString());
+                todo.setDay(editText1.getText().toString());
+                todoOpenHepler openHelper= todoOpenHepler.getInstance(getApplicationContext());
+                SQLiteDatabase database = openHelper.getWritableDatabase();
+
+                long id = todo.getId();
+                String[] selectionArgs = {id + ""};
+                ContentValues cv = new ContentValues();
+                cv.put(Contract.Todo.COLUMN_NAME,todo.getName());
+                cv.put(Contract.Todo.COLUMN_DAY,todo.getDay());
+                database.update(Contract.Todo.TABLE_NAME,cv ,Contract.Todo.COLUMN_ID + " = ?",selectionArgs);
                 adapter.notifyDataSetChanged();
                 dialog.dismiss();
             }
@@ -146,8 +188,19 @@ public class MainActivity extends AppCompatActivity  {
                 String day = data.getStringExtra(AddTodoActivity.DAY_KEY);
 
                 todo todo = new todo(title, day);
-                todos.add(todo);
-                adapter.notifyDataSetChanged();
+                todoOpenHepler openHelper = todoOpenHepler.getInstance(this);
+                SQLiteDatabase database = openHelper.getWritableDatabase();
+
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(Contract.Todo.COLUMN_NAME,todo.getName());
+                contentValues.put(Contract.Todo.COLUMN_DAY,todo.getDay());
+
+                long id = database.insert(Contract.Todo.TABLE_NAME,null,contentValues);
+                if (id > -1L) {
+                    todo.setId(id);
+                    todos.add(todo);
+                    adapter.notifyDataSetChanged();
+                }
             }
         }
     }
