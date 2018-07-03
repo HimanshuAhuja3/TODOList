@@ -45,13 +45,16 @@ public class MainActivity extends AppCompatActivity {
         SQLiteDatabase database = openHelper.getReadableDatabase();
        // int amountGreaterThan = 0;
        // String[] selectionArgument = {amountGreaterThan + "",};
-        String[] columns = {Contract.Todo.COLUMN_NAME,Contract.Todo.COLUMN_DAY,Contract.Todo.COLUMN_ID};
+        String[] columns = {Contract.Todo.COLUMN_NAME,Contract.Todo.COLUMN_DAY,Contract.Todo.COLUMN_ID,Contract.Todo.COLUMN_DATE,Contract.Todo.COLUMN_TIME};
         Cursor cursor = database.query(Contract.Todo.TABLE_NAME,columns,  null,null,null,null,null);
         while(cursor.moveToNext()){
             String name = cursor.getString(cursor.getColumnIndex(Contract.Todo.COLUMN_NAME));
             String day = cursor.getString(cursor.getColumnIndex(Contract.Todo.COLUMN_DAY));
             long id = cursor.getLong(cursor.getColumnIndex(Contract.Todo.COLUMN_ID));
-            todo todo = new todo(name,day);
+            String date= cursor.getString(cursor.getColumnIndex(Contract.Todo.COLUMN_DATE));
+            String time= cursor.getString(cursor.getColumnIndex(Contract.Todo.COLUMN_TIME));
+
+            todo todo = new todo(name,day,date,time);
             todo.setId(id);
             todos.add(todo);
         }
@@ -67,7 +70,9 @@ public class MainActivity extends AppCompatActivity {
                 todo todo = todos.get(i);
                 String n=todo.getName();
                 String d=todo.getDay();
-                showInputBox(n,d,i);
+                String date=todo.getDate();
+                String time=todo.getTime();
+                showInputBox(n,d,date,time,i);
 
 
             }
@@ -120,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
         View view = new View(this);
     }
-    public void showInputBox(String name,  String day, final int index){
+    public void showInputBox(String name,  String day, String date,String time,final int index){
         final int position=index;
         final Dialog dialog=new Dialog(MainActivity.this);
         dialog.setTitle("Input Box");
@@ -132,6 +137,10 @@ public class MainActivity extends AppCompatActivity {
         editText.setText(name);
         final  EditText editText1=dialog.findViewById(R.id.daytxt);
         editText1.setText(day);
+        final  EditText editText2=dialog.findViewById(R.id.datetxt);
+        editText2.setText(date);
+        final  EditText editText3=dialog.findViewById(R.id.timetxt);
+        editText3.setText(time);
         Button bt=dialog.findViewById(R.id.btnset);
         bt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -139,6 +148,8 @@ public class MainActivity extends AppCompatActivity {
                 todo todo = todos.get(index);
                 todo.setName(editText.getText().toString());
                 todo.setDay(editText1.getText().toString());
+                todo.setDate(editText2.getText().toString());
+                todo.setTime(editText3.getText().toString());
                 todoOpenHepler openHelper= todoOpenHepler.getInstance(getApplicationContext());
                 SQLiteDatabase database = openHelper.getWritableDatabase();
 
@@ -147,6 +158,9 @@ public class MainActivity extends AppCompatActivity {
                 ContentValues cv = new ContentValues();
                 cv.put(Contract.Todo.COLUMN_NAME,todo.getName());
                 cv.put(Contract.Todo.COLUMN_DAY,todo.getDay());
+                cv.put(Contract.Todo.COLUMN_DATE,todo.getDate());
+                cv.put(Contract.Todo.COLUMN_TIME,todo.getTime());
+
                 database.update(Contract.Todo.TABLE_NAME,cv ,Contract.Todo.COLUMN_ID + " = ?",selectionArgs);
                 adapter.notifyDataSetChanged();
                 dialog.dismiss();
@@ -169,7 +183,8 @@ public class MainActivity extends AppCompatActivity {
             Bundle bundle = new Bundle();
             bundle.putString("title", "abc");
             bundle.putString("day", "monday");
-
+            bundle.putString("date","01/07/2018");
+            bundle.putString("time","19:06");
             Intent intent = new Intent(this, AddTodoActivity.class);
             intent.putExtras(bundle);
             startActivityForResult(intent, ADD_EXPENSE_REQUEST_CODE);
@@ -186,14 +201,19 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == AddTodoActivity.ADD_RESULT_CODE) {
                 String title = data.getStringExtra(AddTodoActivity.TITLE_KEY);
                 String day = data.getStringExtra(AddTodoActivity.DAY_KEY);
+                String date= data.getStringExtra(AddTodoActivity.DATE_KEY);
+                String time= data.getStringExtra(AddTodoActivity.TIME_KEY);
 
-                todo todo = new todo(title, day);
+                todo todo = new todo(title, day,date,time);
                 todoOpenHepler openHelper = todoOpenHepler.getInstance(this);
                 SQLiteDatabase database = openHelper.getWritableDatabase();
 
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(Contract.Todo.COLUMN_NAME,todo.getName());
                 contentValues.put(Contract.Todo.COLUMN_DAY,todo.getDay());
+                contentValues.put(Contract.Todo.COLUMN_DATE,todo.getDate());
+                contentValues.put(Contract.Todo.COLUMN_TIME,todo.getTime());
+
 
                 long id = database.insert(Contract.Todo.TABLE_NAME,null,contentValues);
                 if (id > -1L) {

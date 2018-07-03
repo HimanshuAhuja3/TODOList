@@ -45,15 +45,21 @@ public class todoAdapter extends ArrayAdapter{
             output = inflater.inflate(R.layout.todorow_layout,parent,false);
             TextView nameTextView = output.findViewById(R.id.todotask);
             TextView dayview = output.findViewById(R.id.day);
+            TextView dateview=output.findViewById(R.id.datetext);
+            TextView timeview=output.findViewById(R.id.timetext);
             todoholder viewHolder = new todoholder();
             viewHolder.title =nameTextView;
             viewHolder.day =dayview ;
+            viewHolder.date=dateview;
+            viewHolder.time=timeview;
             output.setTag(viewHolder);
         }
         todoholder viewHolder = (todoholder) output.getTag();
         todo todos= items.get(position);
         viewHolder.title.setText(todos.getName());
         viewHolder.day.setText(todos.getDay() );
+        viewHolder.date.setText(todos.getDate());
+        viewHolder.time.setText(todos.getTime());
         return output;
     }
 }

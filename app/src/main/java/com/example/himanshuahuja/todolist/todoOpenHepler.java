@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class todoOpenHepler extends SQLiteOpenHelper {
 
         public static final String DATABASE_NAME = "todo_db";
-        public static final int VERSION = 1;
+        public static final int VERSION = 2;
 
 
 
@@ -28,7 +28,9 @@ public class todoOpenHepler extends SQLiteOpenHelper {
             String todosql ="CREATE TABLE " + Contract.Todo.TABLE_NAME + "("+
                     Contract.Todo.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT , " +
                     Contract.Todo.COLUMN_NAME  + " TEXT , " +
-                    Contract.Todo.COLUMN_DAY + " TEXT )";
+                    Contract.Todo.COLUMN_DAY + " TEXT , " +
+                    Contract.Todo.COLUMN_DATE + " TEXT , " +
+                    Contract.Todo.COLUMN_TIME + " TEXT ) ";
 
 
 
@@ -37,6 +39,7 @@ public class todoOpenHepler extends SQLiteOpenHelper {
 
         @Override
         public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-
+          // sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "+Contract.Todo.TABLE_NAME);
+          // onCreate(sqLiteDatabase);
         }
     }
