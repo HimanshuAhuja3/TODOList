@@ -9,30 +9,33 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-
+import android.widget.Toast;
 
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SmsListener {
     ArrayList<todo> todos = new ArrayList<>();
     // adapter;
     todoAdapter adapter;
-
+    ImageButton AddButton;
+    public static final String OTP_REGEX = "[0-9]{1,6}";
     public static final int ADD_EXPENSE_REQUEST_CODE = 100;
 
 
@@ -40,21 +43,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ListView listView = findViewById(R.id.listview);
+        ListView listView = findViewById(R.id.mainListView);
+
+        AddButton = findViewById(R.id.AddButton);
         todoOpenHepler openHelper = todoOpenHepler.getInstance(getApplicationContext());
         SQLiteDatabase database = openHelper.getReadableDatabase();
-       // int amountGreaterThan = 0;
-       // String[] selectionArgument = {amountGreaterThan + "",};
-        String[] columns = {Contract.Todo.COLUMN_NAME,Contract.Todo.COLUMN_DAY,Contract.Todo.COLUMN_ID,Contract.Todo.COLUMN_DATE,Contract.Todo.COLUMN_TIME};
-        Cursor cursor = database.query(Contract.Todo.TABLE_NAME,columns,  null,null,null,null,null);
-        while(cursor.moveToNext()){
+        // int amountGreaterThan = 0;
+        // String[] selectionArgument = {amountGreaterThan + "",};
+        String[] columns = {Contract.Todo.COLUMN_NAME, Contract.Todo.COLUMN_DAY, Contract.Todo.COLUMN_ID, Contract.Todo.COLUMN_DATE, Contract.Todo.COLUMN_TIME};
+        Cursor cursor = database.query(Contract.Todo.TABLE_NAME, columns, null, null, null, null, null);
+        while (cursor.moveToNext()) {
             String name = cursor.getString(cursor.getColumnIndex(Contract.Todo.COLUMN_NAME));
             String day = cursor.getString(cursor.getColumnIndex(Contract.Todo.COLUMN_DAY));
             long id = cursor.getLong(cursor.getColumnIndex(Contract.Todo.COLUMN_ID));
-            String date= cursor.getString(cursor.getColumnIndex(Contract.Todo.COLUMN_DATE));
-            String time= cursor.getString(cursor.getColumnIndex(Contract.Todo.COLUMN_TIME));
+            String date = cursor.getString(cursor.getColumnIndex(Contract.Todo.COLUMN_DATE));
+            String time = cursor.getString(cursor.getColumnIndex(Contract.Todo.COLUMN_TIME));
 
-            todo todo = new todo(name,day,date,time);
+            todo todo = new todo(name, day, date, time);
             todo.setId(id);
             todos.add(todo);
         }
@@ -68,11 +73,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 todo todo = todos.get(i);
-                String n=todo.getName();
-                String d=todo.getDay();
-                String date=todo.getDate();
-                String time=todo.getTime();
-                showInputBox(n,d,date,time,i);
+                String n = todo.getName();
+                String d = todo.getDay();
+                String date = todo.getDate();
+                String time = todo.getTime();
+
+                showInputBox(n, d, date, time, i);
 
 
             }
@@ -94,13 +100,13 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialogInterface, int i) {
 
                         //Toast.makeText(MainActivity.this,"Ok Presses",Toast.LENGTH_LONG).show();
-                        todoOpenHepler openHelper= todoOpenHepler.getInstance(getApplicationContext());
+                        todoOpenHepler openHelper = todoOpenHepler.getInstance(getApplicationContext());
                         SQLiteDatabase database = openHelper.getWritableDatabase();
 
                         long id = todo.getId();
                         String[] selectionArgs = {id + ""};
 
-                        database.delete(Contract.Todo.TABLE_NAME,Contract.Todo.COLUMN_ID + " = ?",selectionArgs);
+                        database.delete(Contract.Todo.TABLE_NAME, Contract.Todo.COLUMN_ID + " = ?", selectionArgs);
                         todos.remove(position);
                         adapter.notifyDataSetChanged();
                     }
@@ -122,26 +128,37 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+        AddButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, AddTodoActivity.class);
+                Log.d("Main ", "add button");
+                startActivityForResult(intent, ADD_EXPENSE_REQUEST_CODE);
+            }
+        });
 
         View view = new View(this);
     }
-    public void showInputBox(String name,  String day, String date,String time,final int index){
-        final int position=index;
-        final Dialog dialog=new Dialog(MainActivity.this);
+
+
+
+    public void showInputBox(String name, String day, String date, String time, final int index) {
+        final int position = index;
+        final Dialog dialog = new Dialog(MainActivity.this);
         dialog.setTitle("Input Box");
         dialog.setContentView(R.layout.input_box);
-        TextView textView=(TextView)dialog.findViewById(R.id.txtmsz);
+        TextView textView = (TextView) dialog.findViewById(R.id.txtmsz);
         textView.setText("Update Item");
         textView.setTextColor(Color.parseColor("#ff2222"));
-        final EditText editText=dialog.findViewById(R.id.todoname);
+        final EditText editText = dialog.findViewById(R.id.todoname);
         editText.setText(name);
-        final  EditText editText1=dialog.findViewById(R.id.daytxt);
+        final EditText editText1 = dialog.findViewById(R.id.daytxt);
         editText1.setText(day);
-        final  EditText editText2=dialog.findViewById(R.id.datetxt);
+        final EditText editText2 = dialog.findViewById(R.id.datetxt);
         editText2.setText(date);
-        final  EditText editText3=dialog.findViewById(R.id.timetxt);
+        final EditText editText3 = dialog.findViewById(R.id.timetxt);
         editText3.setText(time);
-        Button bt=dialog.findViewById(R.id.btnset);
+        Button bt = dialog.findViewById(R.id.btnset);
         bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -150,18 +167,18 @@ public class MainActivity extends AppCompatActivity {
                 todo.setDay(editText1.getText().toString());
                 todo.setDate(editText2.getText().toString());
                 todo.setTime(editText3.getText().toString());
-                todoOpenHepler openHelper= todoOpenHepler.getInstance(getApplicationContext());
+                todoOpenHepler openHelper = todoOpenHepler.getInstance(getApplicationContext());
                 SQLiteDatabase database = openHelper.getWritableDatabase();
 
                 long id = todo.getId();
                 String[] selectionArgs = {id + ""};
                 ContentValues cv = new ContentValues();
-                cv.put(Contract.Todo.COLUMN_NAME,todo.getName());
-                cv.put(Contract.Todo.COLUMN_DAY,todo.getDay());
-                cv.put(Contract.Todo.COLUMN_DATE,todo.getDate());
-                cv.put(Contract.Todo.COLUMN_TIME,todo.getTime());
+                cv.put(Contract.Todo.COLUMN_NAME, todo.getName());
+                cv.put(Contract.Todo.COLUMN_DAY, todo.getDay());
+                cv.put(Contract.Todo.COLUMN_DATE, todo.getDate());
+                cv.put(Contract.Todo.COLUMN_TIME, todo.getTime());
 
-                database.update(Contract.Todo.TABLE_NAME,cv ,Contract.Todo.COLUMN_ID + " = ?",selectionArgs);
+                database.update(Contract.Todo.TABLE_NAME, cv, Contract.Todo.COLUMN_ID + " = ?", selectionArgs);
                 adapter.notifyDataSetChanged();
                 dialog.dismiss();
             }
@@ -169,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
 
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
@@ -183,12 +201,14 @@ public class MainActivity extends AppCompatActivity {
             Bundle bundle = new Bundle();
             bundle.putString("title", "abc");
             bundle.putString("day", "monday");
-            bundle.putString("date","01/07/2018");
-            bundle.putString("time","19:06");
+            bundle.putString("date", "01/07/2018");
+            bundle.putString("time", "19:06");
             Intent intent = new Intent(this, AddTodoActivity.class);
             intent.putExtras(bundle);
             startActivityForResult(intent, ADD_EXPENSE_REQUEST_CODE);
+
         }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -201,21 +221,21 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == AddTodoActivity.ADD_RESULT_CODE) {
                 String title = data.getStringExtra(AddTodoActivity.TITLE_KEY);
                 String day = data.getStringExtra(AddTodoActivity.DAY_KEY);
-                String date= data.getStringExtra(AddTodoActivity.DATE_KEY);
-                String time= data.getStringExtra(AddTodoActivity.TIME_KEY);
+                String date = data.getStringExtra(AddTodoActivity.DATE_KEY);
+                String time = data.getStringExtra(AddTodoActivity.TIME_KEY);
 
-                todo todo = new todo(title, day,date,time);
+                todo todo = new todo(title, day, date, time);
                 todoOpenHepler openHelper = todoOpenHepler.getInstance(this);
                 SQLiteDatabase database = openHelper.getWritableDatabase();
 
                 ContentValues contentValues = new ContentValues();
-                contentValues.put(Contract.Todo.COLUMN_NAME,todo.getName());
-                contentValues.put(Contract.Todo.COLUMN_DAY,todo.getDay());
-                contentValues.put(Contract.Todo.COLUMN_DATE,todo.getDate());
-                contentValues.put(Contract.Todo.COLUMN_TIME,todo.getTime());
+                contentValues.put(Contract.Todo.COLUMN_NAME, todo.getName());
+                contentValues.put(Contract.Todo.COLUMN_DAY, todo.getDay());
+                contentValues.put(Contract.Todo.COLUMN_DATE, todo.getDate());
+                contentValues.put(Contract.Todo.COLUMN_TIME, todo.getTime());
 
 
-                long id = database.insert(Contract.Todo.TABLE_NAME,null,contentValues);
+                long id = database.insert(Contract.Todo.TABLE_NAME, null, contentValues);
                 if (id > -1L) {
                     todo.setId(id);
                     todos.add(todo);
@@ -226,7 +246,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void messageReceived(String messageBody, String sender) {
+
+        Calendar calendar = Calendar.getInstance();
+        Date dat = Calendar.getInstance().getTime();
+        String day = messageBody;
+        String title = sender;
+        String time = calendar.getTime().toString();
+        String date = dat.toString();
+
+        todo todo = new todo(title, day, date, time);
+        todos.add(todo);
+        adapter.notifyDataSetChanged();
+        Toast.makeText(MainActivity.this, "received", Toast.LENGTH_SHORT).show();
 
 
-
+    }
 }

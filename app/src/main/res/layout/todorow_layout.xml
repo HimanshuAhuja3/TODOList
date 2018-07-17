@@ -3,41 +3,118 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@android:color/darker_gray"
-    android:orientation="vertical">
 
 
-    <TextView
-        android:id="@+id/todotask"
-        android:layout_width="wrap_content"
-        android:layout_height="30sp"
-        android:text="todoactivity"
-        android:textColor="@android:color/holo_red_light"
-        android:textSize="20sp" />
+    android:background="@drawable/rectangle_shape"
 
+    android:orientation="vertical"
+    >
 
-    <TextView
-        android:id="@+id/day"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Monday"
-        android:textColor="@android:color/black"
-        android:textSize="20sp" />
-
-    <TextView
-        android:id="@+id/datetext"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="30sp"
-        android:text="Description"
-        android:textColor="@color/colorAccent"
-        android:textSize="20sp" />
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/timetext"
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="  Task:"
+            android:textColor="@android:color/holo_red_light"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/todotask"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="todoactivity"
+            android:textColor="@android:color/holo_red_light"
+            android:textSize="20sp" />
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="30sp"
-        android:text="time"
-        android:textColor="@color/colorPrimaryDark"
-        android:textSize="20sp" />
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
+            android:text="Description:"
+            android:textColor="@android:color/black"
+
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="Monday"
+            android:textColor="@android:color/black"
+            android:textSize="20sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="84dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
+            android:text="Date:"
+            android:textColor="@color/colorAccent"
+
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/datetext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="Date"
+            android:textColor="@color/colorAccent"
+            android:textSize="20sp" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="76dp"
+            android:layout_height="match_parent"
+
+            android:layout_marginLeft="10dp"
+            android:layout_weight="0.7"
+            android:text="Time:"
+            android:textColor="@color/colorPrimaryDark"
+
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/timetext"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_weight="2"
+
+            android:text="time"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="20sp" />
+
+
+    </LinearLayout>
+
+
 
 </LinearLayout>

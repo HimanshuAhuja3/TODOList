@@ -28,8 +28,6 @@ public class AddTodoActivity extends AppCompatActivity {
 
 
         Intent intent = getIntent();
-        Bundle bundle = intent.getExtras();
-        bundle.getString("title");
 
         TimeEditText = findViewById(R.id.addtodoTimeEditText);
         TimeEditText.setOnClickListener(new View.OnClickListener() {
@@ -69,10 +67,10 @@ public class AddTodoActivity extends AppCompatActivity {
 
 
         Intent data = new Intent();
-        data.putExtra(TITLE_KEY,"Task:"+" "+title);
-        data.putExtra(DAY_KEY,"Description:"+" "+day);
-        data.putExtra(DATE_KEY,"Date:"+" "+date);
-        data.putExtra(TIME_KEY,"Time:"+" "+time);
+        data.putExtra(TITLE_KEY,title);
+        data.putExtra(DAY_KEY,day);
+        data.putExtra(DATE_KEY,date);
+        data.putExtra(TIME_KEY,time);
 
 
         setResult(ADD_RESULT_CODE,data);
@@ -95,8 +93,8 @@ public class AddTodoActivity extends AppCompatActivity {
                 TimeEditText.setText(timeExpense);
 
             }
-        },hour,min,false);
-
+        },hour,min,true);
+        timePickerDialog.setTitle("Select Time");
         timePickerDialog.show();
     }
     private void setDate() {
